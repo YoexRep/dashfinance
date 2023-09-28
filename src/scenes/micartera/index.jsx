@@ -1,3 +1,4 @@
+
 import { Box, Button, TextField, MenuItem } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -5,28 +6,53 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { mockDataContacts } from "../../data/mockData";
 import { useTheme } from "@mui/material";
+import {useEffect, useState} from 'react';
+import { getMicartera } from "../../services/micartera";
+
+
+
+
 
 const Micartera = () => {
+
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
   const handleFormSubmit = (values) => {
+    console.log("esto si funciona")
     console.log(values);
   };
 
+  const [micartera, setMicartera] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getMicartera({ parametros: { id: 2 } });
+        setMicartera(data);
+       
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-
 
   const columnVisibilityModel = {
     id: false,
   };
 
+
     const columns = [
 { field: "id", headerName: "ID", flex: 0.5 },
 
-{ field: "cripto", headerName: "Cripto moneda", flex: 1,    headerAlign: "center",
+{ field: "criptomoneda", headerName: "Cripto moneda", flex: 1,    headerAlign: "center",
 align: "center",},
 
     {
@@ -38,7 +64,7 @@ align: "center",},
 
     },
     {
-      field: "precioCompra",
+      field: "precio_compra",
       headerName: "Precio Compra",
       type: "number",
       headerAlign: "center",
@@ -66,7 +92,7 @@ align: "center",},
   return (
     <> <Box m="20px">
     <Header title="Mi cartera" subtitle="Administración de posiciones" />
-
+    
     <Formik
       onSubmit={handleFormSubmit}
       initialValues={initialValues}
@@ -167,17 +193,21 @@ align: "center",},
               helperText={touched.comision && errors.comision}
               sx={{ gridColumn: "span 1" }}
             />
-
-      <Button type="submit" color="secondary" variant="contained">
+    <Button type="submit" color="secondary" variant="contained">
               Añadir posición
             </Button>
            
+
           </Box>
+
+    
           
         </form>
       )}
     </Formik>
-  </Box> <Box m="20px">
+  </Box> 
+  
+  <Box m="20px">
   
     <Box
       m="40px 0 0 0"
@@ -212,14 +242,17 @@ align: "center",},
       }}
     >
       <DataGrid
-        rows={mockDataContacts}
+       rows={micartera || []}
         columns={columns}
         autoSizeColumns
         columnVisibilityModel={columnVisibilityModel}
         components={{ Toolbar: GridToolbar }}
       />
     </Box>
-  </Box></>
+  </Box>
+  
+  
+  </>
     
   );
 };
@@ -228,17 +261,14 @@ align: "center",},
 const checkoutSchema = yup.object().shape({
   cripto: yup.string().required("required"),
   tipo: yup.string().required("required"),
-  fecha: yup.string().required("required"),
   cantidad: yup.string().required("required"),
-  precio: yup
-    .string().required("required"),
-    comision: yup.string().required("required"),
+  precio: yup.string().required("required"),
+  comision: yup.string().required("required"),
   
 });
 const initialValues = {
   cripto: "",
   tipo: "",
-  fecha: "",
   cantidad: "",
   precio: "",
   comision: "",
