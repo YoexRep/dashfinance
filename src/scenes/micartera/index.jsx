@@ -8,7 +8,7 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { useTheme } from "@mui/material";
 import {useEffect, useState} from 'react';
-import { getMicartera } from "../../services/micartera";
+import { getMicartera, setMicartera } from "../../services/micartera";
 
 
 
@@ -18,9 +18,19 @@ const Micartera = () => {
 
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
-  const handleFormSubmit = (values) => {
-    console.log("esto si funciona")
+  const handleFormSubmit = async (values) => {
+
     console.log(values);
+
+    try{
+
+      const res = await setMicartera({ values});
+
+      console.log(res)
+
+    }catch(error){
+      console.error(error);
+    }
   };
 
   const [micartera, setMicartera] = useState([]);
@@ -122,8 +132,8 @@ align: "center",},
             
               onBlur={handleBlur}
               onChange={handleChange}
-              value={values.cripto}
-              name="cripto"
+              value={values.criptomoneda}
+              name="criptomoneda"
               error={!!touched.cripto && !!errors.cripto}
               helperText={touched.cripto && errors.cripto}
               sx={{ gridColumn: "span 2" }}
@@ -259,7 +269,7 @@ align: "center",},
 
 
 const checkoutSchema = yup.object().shape({
-  cripto: yup.string().required("required"),
+  criptomoneda: yup.string().required("required"),
   tipo: yup.string().required("required"),
   cantidad: yup.string().required("required"),
   precio: yup.string().required("required"),
@@ -267,7 +277,7 @@ const checkoutSchema = yup.object().shape({
   
 });
 const initialValues = {
-  cripto: "",
+  criptomoneda: "",
   tipo: "",
   cantidad: "",
   precio: "",
