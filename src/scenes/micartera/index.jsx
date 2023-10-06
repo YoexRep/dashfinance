@@ -8,8 +8,8 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { useTheme } from "@mui/material";
 import {useEffect, useState} from 'react';
-import { getMicartera, setMicartera } from "../../services/micartera";
-
+import { getMicartera, setMicartera} from "../../services/micartera";
+import { getPrecioCrypto } from "../../services/cryptos";
 
 
 
@@ -22,17 +22,42 @@ const Micartera = () => {
 
     try{
       const data = await getMicartera({ parametros: { id: 2 } });
+
+
         
-      // Manipula los valores del array 'data' antes de asignarlos a 'micarteraState'
-  const modifiedData = data.map(item => {
-    
-    const modifiedValue = item.cantidad * item.precio_compra;
-    // Devuelve un nuevo objeto con el valor modificado
-    return {
-      ...item,
-      valorMercado: modifiedValue
-    };
-  });
+      // Obtener valores antes de asignarlos a mi datagrid
+      const modifiedData = await Promise.all(data.map(async (item) => {
+        try {
+          const respuestaAPi = await getPrecioCrypto({ parametros: { coin: item.criptomoneda, fiat: 'USD', volumen: 0.1 } });
+      
+          // Verifica si la respuesta contiene la propiedad 'totalBid' antes de acceder a ella
+          if (respuestaAPi) {
+            console.log("entro a respuestaapi "+respuestaAPi[item.criptomoneda]);
+            const precioActual = respuestaAPi[item.criptomoneda].totalBid;
+            const valorMercadoActual = item.cantidad * precioActual;
+            const valorCompraMasComision = item.cantidad * item.precio_compra + item.comision;
+      
+            const ganancias_Perdidas = valorMercadoActual - valorCompraMasComision;
+      
+            // Devuelve un nuevo objeto con el valor modificado
+            return {
+              ...item,
+              precioActual: precioActual,
+              valorMercado: valorMercadoActual,
+              ganancias_perdidas: ganancias_Perdidas
+            };
+          } else {
+            console.log(`Respuesta API incompleta o sin 'totalBid' para ${item.criptomoneda}`);
+            // Puedes manejar el error de alguna manera si es necesario
+            return item;
+          }
+        } catch (error) {
+          console.log(`Error al obtener precio para ${item.criptomoneda}: ${error}`);
+          // Puedes manejar el error de alguna manera si es necesario
+          return item;
+        }
+      }));
+      
   
   
   // Asigna los datos modificados a 'micarteraState'
@@ -118,7 +143,7 @@ align: "center",},
     ,
     {
       field: "ganancias_perdidas",
-      headerName: "Ganancias o perdidas",
+      headerName: "G/P Neto",
       type: "number",
       headerAlign: "center",
       align: "center",

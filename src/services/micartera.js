@@ -33,6 +33,7 @@ export const setMicartera = async ({ values }) => {
         cantidad: values.cantidad,
         precio_compra: values.precio_compra,
         id_usuario: 2, // de momento lo dejamos fijo
+        comision: values.comision,
       }),
     };
 
@@ -58,7 +59,8 @@ export const updateMicartera = async ({ values }) => {
         tipo: values.tipo,
         cripto: values.cripto,
         cantidad: values.cantidad,
-        precio: values.precio_compra,
+        precio_compra: values.precio_compra,
+        comision: values.comision,
       }),
     };
 
