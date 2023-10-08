@@ -1,14 +1,41 @@
 import { ResponsivePie } from "@nivo/pie";
 import { tokens } from "../theme";
 import { useTheme } from "@mui/material";
-
+import { getActivos } from "../services/activos";
+import { useEffect, useState} from 'react';
 
 const PieChart = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+
+  const [dataPie, setDataPie] = useState([]);
+
+  const obtenerDataPie = async() =>{
+    try{
+
+      const data = await getActivos({ parametros: { id: 2 } });
+
+
+      setDataPie(data);
+
+    }
+    catch (error) {
+      console.log(`Error al obtener datos`);
+
+    }
+  
+  }
+
+
+  useEffect(() => {
+    obtenerDataPie();
+  }, []);
+
+
+
   return (
     <ResponsivePie
-      //data={}
+      data={dataPie}
       theme={{
         axis: {
           domain: {

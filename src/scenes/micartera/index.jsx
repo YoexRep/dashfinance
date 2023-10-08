@@ -28,21 +28,45 @@ const Micartera = () => {
       // Obtener valores antes de asignarlos a mi datagrid
       const modifiedData = await Promise.all(data.map(async (item) => {
         try {
-          const respuestaAPi = await getPrecioCrypto({ parametros: { coin: item.criptomoneda, fiat: 'USD', volumen: 0.1 } });
+          const data = await getPrecioCrypto({ parametros: { coin: item.criptomoneda, fiat: 'USD', volumen: 0.1 } });
       
           // Verifica si la respuesta contiene la propiedad 'totalBid' antes de acceder a ella
-          if (respuestaAPi) {
-            console.log("entro a respuestaapi "+respuestaAPi[item.criptomoneda]);
-            const precioActual = respuestaAPi[item.criptomoneda].totalBid;
-            const valorMercadoActual = item.cantidad * precioActual;
-            const valorCompraMasComision = item.cantidad * item.precio_compra + item.comision;
+        
+          if (data) {
+
+
+            
+
+            var primerElemento = Object.values(data)[0]; // Obtiene el primer elemento del objeto
+           
+            let precioActual = 0;
+            
+
+          if (primerElemento && primerElemento.hasOwnProperty("totalBid")) {
+                  precioActual = primerElemento.totalBid;
+             
+              } 
+
+       
+
+              
+              //formatear el precio actual.
+           //   precioActual = precioActual.toString().replace(/,/g, '.');
+
+    
+
+              const valorNumericoPrecioActual = parseFloat(precioActual).toFixed(2);
+
+            
+            const valorMercadoActual =parseFloat(item.cantidad * valorNumericoPrecioActual).toFixed(2) ;
+            const valorCompraMasComision = parseFloat(item.cantidad * item.precio_compra + item.comision).toFixed(2) ;
       
-            const ganancias_Perdidas = valorMercadoActual - valorCompraMasComision;
+            const ganancias_Perdidas = parseFloat(valorMercadoActual - valorCompraMasComision).toFixed(2) ;
       
             // Devuelve un nuevo objeto con el valor modificado
             return {
               ...item,
-              precioActual: precioActual,
+              precioActual: valorNumericoPrecioActual,
               valorMercado: valorMercadoActual,
               ganancias_perdidas: ganancias_Perdidas
             };

@@ -5,7 +5,7 @@ export const getMicartera = async ({ parametros }) => {
     const { id } = parametros;
 
     const url = getApiUrl(`getMiCartera/${id}`);
-    console.log(url);
+ 
     const options = {
       method: "GET",
     };
@@ -24,7 +24,7 @@ export const getMicartera = async ({ parametros }) => {
 export const setMicartera = async ({ values }) => {
   try {
     const url = getApiUrl(`setMiCartera`);
-
+    console.log("Se ejecuta set "+values.precio_compra);
     const options = {
       method: "POST",
       body: new URLSearchParams({
